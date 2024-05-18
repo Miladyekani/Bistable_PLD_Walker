@@ -1,20 +1,16 @@
 
 % Assert that Psychtoolbox is properly installed
+info.RT=[];
+info.RK=[];
 
 AssertOpenGL;
 
 % Here we call some default settings for setting up Psychtoolbox
 PsychDefaultSetup(2);
-
 % Get a list of all the image files in the 'frames' folder
-imageFiles_PLD       = dir('stimuli_set/bistable_point_light_stimulus/*.jpg');
-imageFiles_HL_toward = dir('stimuli_set/Toward_HL/*.jpg');
-imageFiles_HL_away   = dir('stimuli_set/Away_HL/*.jpg');
-numFrames = length(imageFiles_PLD);
-numFrames  = 800 ; 
+numFrames  = 800 ; button = 0 ; Response_number = 0 ; Respponse_name  = 'Nan' ; video_frames = 300 ; start_frame  = 50 ;
 % Get the screen numbers
 screens = Screen('Screens');
-
 % Draw to the external screen if avaliable
 screenNumber = max(screens);
 screenNumber = 1
@@ -35,21 +31,27 @@ Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 ifi = Screen('GetFlipInterval', window);
 
 % Pre-load images and textures
-textures = cell(1, numFrames);
+info.textures = {};
 respose_image    = imread ('stimuli_set\Response.jpg') ;
 texture_response =  Screen('MakeTexture', window, respose_image);
+% specify the keys 
+Up = KbName('uparrow');
+Down = KbName('downarrow');
+Right = KbName('rightarrow');
+Left = KbName('leftarrow');
+Exit =     KbName('space');
 for i = 1:numFrames
     % Load the image
-    image_PLD         = imread(fullfile('stimuli_set', 'bistable_point_light_stimulus', strcat ( 'frame', num2str(i),'.jpg')));
+    image_PLD         = imread(fullfile('stimuli_set', 'PLD_BS', strcat ( 'frame', num2str(i),'.jpg')));
     image_HL_away     = imread(fullfile('stimuli_set', 'Away_HL', strcat ( 'frame', num2str(i),'.jpg')));
     image_HL_toward   = imread(fullfile('stimuli_set', 'Toward_HL', strcat ( 'frame', num2str(i),'.jpg')));
     
     % Make the image into a texture
     if i>90
-        textures_HL_away_ini{i}     = Screen('MakeTexture', window, image_HL_away *  (1+i*0.0007) );
-        textures_HL_towards_ini{i}  = Screen('MakeTexture', window, image_HL_toward* (1+i*0.0007) );
-        textures_HL_away_dci{i}     = Screen('MakeTexture', window, image_HL_away *  (1+(-i*0.0007)));
-        textures_HL_towards_dci{i}  = Screen('MakeTexture', window, image_HL_toward* (1+(-i*0.0007)));
+        textures_HL_away_ini{i}     = Screen('MakeTexture', window, image_HL_away *  (1+i*0.0009) );
+        textures_HL_towards_ini{i}  = Screen('MakeTexture', window, image_HL_toward* (1+i*0.0009) );
+        textures_HL_away_dci{i}     = Screen('MakeTexture', window, image_HL_away *  (1+(-i*0.0009)));
+        textures_HL_towards_dci{i}  = Screen('MakeTexture', window, image_HL_toward* (1+(-i*0.0009)));
     else
         textures_HL_away_ini{i}     = Screen('MakeTexture', window, image_HL_away   );
         textures_HL_towards_ini{i}  = Screen('MakeTexture', window, image_HL_toward );
@@ -68,32 +70,45 @@ waitframes = 0.2;
 topPriorityLevel = MaxPriority(window);
 Priority(topPriorityLevel);
 % Loop through each image texture and present it on the scree
-button = 0 ; 
-Response_number = 0 ; 
-Respponse_name  = 'Nan' ; 
-video_frames = 300 ; 
-start_frame  = 50 ;
 
-for c = 1:3
-    random_int = randi([1, 5], 1, 1);
+trial_type  = 'Nan' ; 
+for c = 1:30
+    random_int = randi([1, 15], 1, 1);
+    start_frame = randi([2, 90], 1, 1);
+    [a,b,keyCode] = KbCheck;
 
     for i = start_frame:start_frame + video_frames
-        % Get the texture
-        texture_pld           =  textures_PLD{i}             ;
-        texture_hl_away_ini   =  textures_HL_away_ini{i}     ;
-        texture_hl_toward_ini =  textures_HL_towards_ini{i}  ;
-        texture_hl_away_dci   =  textures_HL_away_dci{i}     ;
-        texture_hl_toward_dci =  textures_HL_towards_dci{i}  ;
+
         % Display the texture on the screen
         
-        if random_int == 1
-            texture = texture_pld; 
-        else 
+        if random_int > 5 
+            texture = textures_PLD{i} ;
+            trial_type = 1; 
+        elseif random_int == 2
+          
+            texture = textures_HL_away_ini{i};
+            trial_type = 2;
+        elseif random_int == 3
             
+            texture = textures_HL_towards_ini{i} ;
+            trial_type = 3;
+        elseif random_int == 4
+           
+            texture =  textures_HL_away_dci{i};
+            trial_type = 4';
+        elseif random_int == 5
+         
+            texture =  textures_HL_towards_dci{i};
+            trial_type = 5;
         end
         vbl  = Screen('Flip', window, vbl + (waitframes - 0.5) * ifi);
         Screen('DrawTexture', window, texture)
-        
+        if random_int <= 5
+            [a,b,keyCode] = KbCheck;
+            if (any(keyCode(Left))||any(keyCode(Right)) )
+                break;
+            end
+        end 
         
         
         
@@ -101,22 +116,34 @@ for c = 1:3
 WaitSecs(0.2) ; 
 
     while 1
-         Up = KbName('uparrow');
-         Down = KbName('downarrow');
          [a,b,keyCode] = KbCheck;
-         Screen('DrawTexture', window, texture_response);
+
          Screen('Flip', window);
          % Close the Psychtoolbox screen
-         if any(keyCode(Up))
-             Response_number = 1    ;
-             Respponse_name  = 'UP' ;
-             
-             break;
+         if any(trial_type == 1)
+             if any(keyCode(Up))
+                 Response_number = 1    ;
+                 Respponse_name  = 'UP' ;
+                 break;
+             elseif any(keyCode(Down))
+                 Response_number = 2    ;
+                 Respponse_name  = 'Down' ;
+                 break;
+             end
+         elseif any(trial_type > 1)
+             if any(keyCode(Right))
+                 Response_number = 3    ;
+                 Respponse_name  = 'Right' ;
+                 break;
+             elseif any(keyCode(Left))
+                 Response_number = 4   ;
+                 Respponse_name  = 'Left' ;
+                 break;
+             end
+
          end
-         if any(keyCode(Down))
-             Response_number = 2    ;
-             Respponse_name  = 'Down' ;
-             break;
+         if any(keyCode(Exit))
+           sca;
          end
      end
 end 

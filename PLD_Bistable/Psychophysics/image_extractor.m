@@ -1,5 +1,5 @@
 % Open the video file
-videoFile = 'Away_HL.mp4';
+videoFile = 'PLD_BS.mp4';
 videoObj = VideoReader(videoFile);
 
 % Extract frames from the video
@@ -11,5 +11,5 @@ for i = 1:numFrames
     image = frame;
     
     % Save the image as a JPEG file
-    imwrite(image, strcat('Away_HL\frame', num2str(i), '.jpg'));
+    imwrite(image, strcat('PLD_BS\frame', num2str(i), '.jpg'));
 end

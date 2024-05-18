@@ -1,4 +1,4 @@
-% Clear the workspace and the screen
+ % Clear the workspace and the screen
 sca;
 close all;
 clear;
