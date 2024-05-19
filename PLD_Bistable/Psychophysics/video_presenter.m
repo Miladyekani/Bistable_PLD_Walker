@@ -5,7 +5,7 @@ info.RK=[];
 
 AssertOpenGL;
 
-% Here we call some default settings for setting up Psychtoolbox
+% Here we  call some default settings for setting up Psychtoolbox
 PsychDefaultSetup(2);
 % Get a list of all the image files in the 'frames' folder
 numFrames  = 800 ; button = 0 ; Response_number = 0 ; Respponse_name  = 'Nan' ; video_frames = 300 ; start_frame  = 50 ;
