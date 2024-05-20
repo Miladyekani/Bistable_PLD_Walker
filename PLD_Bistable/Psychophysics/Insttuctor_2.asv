@@ -18,8 +18,8 @@ black = BlackIndex(screenNumber);
 % Get window dimensions
 [windowWidth, windowHeight] = RectSize(windowRect);
 % find center of the window 
-centerX = (windowWidth / 2 )-7;
-centerY = (windowHeight / 2)-55;
+centerX = windowWidth / 2;
+centerY = windowHeight / 2;
 % specifiy the size and color of the cross sign 
 lineWidth = 4;
 lineLength = 20;
@@ -45,40 +45,31 @@ Left  = KbName('leftarrow') ; Exit  =     KbName('space') ;
 
 %% present stimuli
 Participant_responded = 0 ;
-for trail = 1:30
-    % Draw vertical fixation cross 
-    Screen('DrawLine', window, lineColor, centerX, centerY-lineLength/2, centerX, centerY+lineLength/2, lineWidth);
-    Screen('DrawLine', window, lineColor, centerX-lineLength/2, centerY, centerX+lineLength/2, centerY, lineWidth);
-    
+for trail = 1:10
     Screen('Flip',window);
     WaitSecs(2);
     start_frame =  randi([2, 90], 1, 1);
     random_int  =  randi([1, 14], 1, 1);
     if random_int <11
         Text_to_show     = Texture.PLD ;
-        info. trail_typ {trail} = 'PLD' ;
     elseif random_int == 11
         Text_to_show = Texture.Away.In ;
-        info. trail_typ {trail} = 'Away-In' ;
     elseif random_int == 12
         Text_to_show = Texture.Away.Di ;
-        info. trail_typ {trail} = 'Away_Di' ;
     elseif random_int == 13
         Text_to_show = Texture.Toward.In ;
-        info. trail_typ {trail} = 'Toward_In' ;
     elseif random_int == 14
         Text_to_show = Texture.Toward.Di ;
-        info. trail_typ {trail} = 'Toward_Di' ;
     end
  
-    for i =start_frame:250
+    for i =start_frame:300
         
         Screen('DrawTexture', window, Text_to_show{i})
         vbl  = Screen('Flip', window);
         [a,b,keyCode] = KbCheck;
         if any(keyCode(Exit))
             break ;
-        elseif random_int >= 11   
+        elseif random_int > 11 && i> 90
             T_0 = GetSecs() ; 
             if random_int >= 11  && Participant_responded == 0 
                [a,b,keyCode] = KbCheck;
@@ -86,29 +77,28 @@ for trail = 1:30
                   info.Reaction_Time{trail} = GetSecs() - T_0 ; 
                   Beeper(1000,10)
                   Participant_responded = 1 ; 
-                  d =  KbName(keyCode) ; 
-                  info.Respons{trail}  = d{1} ; 
+                  info.Respons{trail}  = KbName(keyCode) ; 
                end
             end
         end
     end 
+ 
     Participant_responded = 0 ;
     Screen('Flip',window);
-    WaitSecs(0.5);
     if random_int<11
-        T_0 = GetSecs() ;
         while 1 
             [a,b,keyCode] = KbCheck;
             Screen('DrawTexture', window, Response_texture)
             Screen('Flip',window)
             if any(keyCode(Up)) ||any(keyCode(Down))
-                info.Reaction_Time{trail} = GetSecs() - T_0 ;
-                info.Respons{trail}  = KbName(keyCode);
                 Beeper(1000,10)
                 break
             end 
+
         end 
     end
+
+    
 end
 sca; 
 %%
