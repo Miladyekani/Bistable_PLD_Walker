@@ -11,5 +11,5 @@ for i = 1:numFrames
     image = frame;
     
     % Save the image as a JPEG file
-    imwrite(image, strcat('PLD_BS\frame', num2str(i), '.jpg'));
+    imwrite(image, strcat('stimuli_set\PLD_BS\frame', num2str(i), '.jpg'));
 end
