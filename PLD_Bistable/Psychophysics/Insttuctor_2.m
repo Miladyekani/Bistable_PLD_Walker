@@ -1,7 +1,9 @@
 clc; clear ; 
 %% psychopysics task from scratch 
 % struct for saving the data 
-participantName = input('Enter the participant name: ', 's');
+participantName    = input('Enter the participant name: ', 's');
+Type_of_experiment = input('type of experiment: ');
+%%
 currentDateTime = datetime('now');
 DateTime = datestr(currentDateTime, 'yyyy-mm-dd-HH-MM-SS');
 fil_name = strcat(participantName, DateTime) ; 
@@ -17,7 +19,7 @@ AssertOpenGL;
 PsychDefaultSetup(2);
 screens = Screen('Screens');
 screenNumber = max(screens);
-screenNumber = 1
+screenNumber = 1;
 white = WhiteIndex(screenNumber); 
 black = BlackIndex(screenNumber);
 [window, windowRect] = PsychImaging('OpenWindow', screenNumber,black);
@@ -50,15 +52,15 @@ Up    = KbName('uparrow')   ; Down  = KbName('downarrow') ; Right = KbName('righ
 Left  = KbName('leftarrow') ; Exit  =     KbName('space') ;
 
 %% present stimuli
-Chunke_number = 4 ;
-if Chunke_number< 4
+Chunke_number = 8 ;
+if Chunke_number < 4
     error ('Chunke_number should be more than 4');
 end
 Participant_responded = 0 ;
 interval_for_modulation = repmat([5, 6], 1, Chunke_number);
 trial_number = sum(interval_for_modulation) ; 
 interval_for_modulation = interval_for_modulation(randperm(length(interval_for_modulation)));
-Modulation_type = repmat([1, 2,3,4], 1, length(interval_for_modulation)/Chunke_number);
+Modulation_type = repmat([1, 2,3,4], 1, length(interval_for_modulation)/4);
 interval_for_modulation = interval_for_modulation(randperm(length(interval_for_modulation)));
 Modulation_type = Modulation_type(randperm(length(Modulation_type))) ; 
 for i=2:length(interval_for_modulation)
@@ -70,8 +72,8 @@ chunk_n = 1 ;
 last_trail = interval_for_modulation(end) ; 
 for trail = 1:trial_number
     Participant_responded = 0 ;
-    if trail == last_trail
-        %%save(fil_name,'Info.mat');
+    if trail == last_trail 
+        % save(fil_name,'Info.mat');
         sca;
     end
     % Draw vertical fixation cross 
@@ -105,14 +107,12 @@ for trail = 1:trial_number
     if  modulation_trail == 1  
         
         start_frame =  randi([2, 90], 1, 1);
-        end_frame   = start_frame + 400 ; 
+        end_frame   = start_frame + 100 ; 
     else 
         start_frame =  randi([2, 90], 1, 1);
         end_frame = start_frame + 90 ; 
         
     end 
-
-    
     for i =start_frame:end_frame
         
         Screen('DrawTexture', window, Text_to_show{i})
@@ -121,7 +121,7 @@ for trail = 1:trial_number
         if any(keyCode(Exit))
             break ;
         end
-        if modulation_trail == 1 
+        if modulation_trail == 1 && Type_of_experiment == 1
             T_0 = GetSecs() ; 
             if Participant_responded == 0 
                [a,b,keyCode] = KbCheck;
@@ -138,8 +138,8 @@ for trail = 1:trial_number
     Screen('Flip',window);
     WaitSecs(0.5);
     T_0 = GetSecs() ; 
-    if modulation_trail == 0 
-        while 1 
+    if modulation_trail == 0 || Type_of_experiment == 2
+        while 1
             [a,b,keyCode] = KbCheck;
             Screen('DrawTexture', window, Response_texture)
             Screen('Flip',window)
@@ -148,13 +148,11 @@ for trail = 1:trial_number
                 info.Respons{trail}  = KbName(keyCode);
                 Beeper(1000,10)
                 break
-            end 
-        end 
+            end
+        end
     end
-
 end
 
-sca;
 %%
 
 
