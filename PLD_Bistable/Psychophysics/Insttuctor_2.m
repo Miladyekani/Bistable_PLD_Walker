@@ -76,7 +76,7 @@ for trail = 1:trial_number
         % save(fil_name,'Info.mat');
         sca;
     end
-    % Draw vertical fixation cross 
+    % Draw  fixation cross 
     Screen('DrawLine', window, lineColor, centerX, centerY-lineLength/2, centerX, centerY+lineLength/2, lineWidth);
     Screen('DrawLine', window, lineColor, centerX-lineLength/2, centerY, centerX+lineLength/2, centerY, lineWidth);
     Screen('Flip',window);
@@ -117,6 +117,7 @@ for trail = 1:trial_number
         
         Screen('DrawTexture', window, Text_to_show{i})
         vbl  = Screen('Flip', window);
+        WaitSecs(0.001)
         [a,b,keyCode] = KbCheck;
         if any(keyCode(Exit))
             break ;
