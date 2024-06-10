@@ -4,6 +4,7 @@ clc; clear ;
 % struct for saving the data 
 participantName    = input('Enter the participant name: ', 's');
 Type_of_experiment = input('type of experiment: ');
+Type_of_experiment = input('block : ');
 %%
 currentDateTime = datetime('now');
 DateTime = datestr(currentDateTime, 'yyyy-mm-dd-HH-MM-SS');
@@ -62,7 +63,12 @@ for i=1:50
         textures_angry{i}                 =  Screen('MakeTexture', window, image_angry ) ;
     end
 end 
-
+N = 400; % Number of rows
+M = 300; % Number of columns
+for i = 1 : 200
+    white_noise_image = randn(N,M);
+    white_noise_texture{i} = Screen('MakeTexture', window, white_noise_image);
+end
 %% Find the code of the keys we need during the task
 Up    = KbName('uparrow')   ; Down  = KbName('downarrow') ; Right = KbName('rightarrow'); 
 Left  = KbName('leftarrow') ; space  =     KbName('space') ;
@@ -104,12 +110,7 @@ for trail=1 :trial_number
             sca;
             break;
         end
-        % present the fixation cross 
-        Screen('DrawLine', window, lineColor, centerX, centerY-lineLength/2, centerX, centerY+lineLength/2, lineWidth);
-        Screen('DrawLine', window, lineColor, centerX-lineLength/2, centerY, centerX+lineLength/2, centerY, lineWidth);
-        Screen('Flip',window);
-        WaitSecs(1);
-        Participant_responded = 0 ;
+
         % find the type of the trail 
         if trail == interval_for_modulation(chunk_n )
             chunk_n = chunk_n + 1;
@@ -150,8 +151,28 @@ for trail=1 :trial_number
             start_frame = 1 ;
             end_frame = 49 ; 
             IFW = 0.03 ; 
-        end 
+        end
         
+   %present the white noise if modulation trial is reached
+    if  modulation_trail == 1 
+        N = 44100 *1.67; % Number of samples
+        white_noise = randn(N,1);
+        sound_obj = audioplayer(white_noise, 44100);
+        play(sound_obj);
+    for i=1 : 100
+        Screen('DrawTexture', window, white_noise_texture{i}, [], [], 0);
+        play(sound_obj);
+        Screen('Flip', window);
+    end
+    end 
+
+    % present the fixation cross
+    Screen('DrawLine', window, lineColor, centerX, centerY-lineLength/2, centerX, centerY+lineLength/2, lineWidth);
+    Screen('DrawLine', window, lineColor, centerX-lineLength/2, centerY, centerX+lineLength/2, centerY, lineWidth);
+    Screen('Flip',window);
+    WaitSecs(1);
+        Participant_responded = 0 ;
+    Screen('Flip', window);
     for i=start_frame: start_frame + end_frame
         if movement_stimulus == 1
             Screen('DrawTexture', window, texture{i},[],positionRect);
